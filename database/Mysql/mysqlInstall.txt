@@ -1,0 +1,135 @@
+linux安装mysql
+
+1、检查是否已安装有mysql（必）
+
+	rpm -qa|grep mysql
+	rpm -qa|grep -i mysql
+
+2、卸载已有的mysql
+
+	rpm -e --nodeps mysql-libs补齐全称（--nodeps 忽略依赖 强制卸载）
+
+3、上传mysql安装文件至 /opt 目录
+
+	MySQL-client-5.5.54-1.linux2.6.x86_64.rpm
+	MySQL-server-5.5.54-1.linux2.6.x86_64.rpm
+
+4、安装客户端
+
+	rpm -ivh MySQL-client-5.5.54-1.linux2.6.x86_64.rpm
+
+5、安装服务端
+
+	rpm -ivh MySQL-server-5.5.54-1.linux2.6.x86_64.rpm
+
+
+6、检查是否安装成功
+
+	mysqladmin --version（出现版本显示即为成功 mysqladmin  Ver 8.42 Distrib 5.5.54, for Linux on x86_64）
+
+	默认参数
+	配置文件位置：/usr/share/mysql/
+	数据文件位置：--datadir=/var/lib/mysql
+	错误日志位置：--log-error=/var/lib/mysql/Legend.err
+
+
+
+8、配置mysql的配置文件
+	
+	复制 /usr/share/mysql/ 下的 my-huge.cnf 文件 至  /etc/ 下 名称修改为 my.cnf
+
+
+
+
+9、字符集配置
+
+	修改  my.cnf 文件 在下列位置添加
+
+	[client]
+
+	#客户端字符集设置为utf8
+	default-character-set=utf8
+
+	[mysqld]
+
+#数据库字符集设置为utf8
+character_set_server=utf8
+character_set_client=utf8
+collation-server=utf8_general_ci
+
+#设置各个数据库分开文件夹存储
+innodb_file_per_table=ON
+
+	[mysql]
+
+#设置数据库字符集utf8
+default-character-set=utf8
+
+
+10、设置mysql数据库是否区分大小写 (1为不区分 0为区分  windows默认不区分  linux默认区分 建议设置为不区分) 可选
+
+	[mysqld]
+#设置不区分大小写
+lower_case_table_names=1 
+
+11、sql_mode(用于设置 sql语句的严格规范) 可选
+
+	show variables like 'sql_mode'; 
+
+
+
+
+11、启动mysql  {start|stop|restart|reload|force-reload|status}
+
+	service mysql start
+
+
+
+
+11.1、设置root用户密码
+
+	mysqladmin -u root password '密码'
+
+
+12、检查mysql数据库字符集
+
+	show variables like '%char%';
+
+
+
+13、创建并设置root可远程登录
+	grant all privileges on *.* to root@'%';
+
+	其他例子：
+	
+	grant select,delete on 数据库名.表名 to username@'连接方式' identified by 'password';
+    
+    grant all privileges on gwlz.* to gwlz@'localhost' identified by 'gwlz';
+	
+	create user gwlz identified by 'gwlz';
+
+	收回权限
+	revoke 权限 on *.* from username@'连接方式';
+
+	修改当前连接用户的密码
+	set password=password('');
+	修改某个用户的密码
+	update mysql.user set password=password('') where user = '' and host='%|localhost';
+	刷新 使密码生效
+	flush privileges
+
+
+
+
+
+
+
+14、设置mysql服务自启动
+	
+	查看系统服务  chkconfig 
+
+	设置mysql服务自启动  chkconfig --level 5 mysql on|off
+
+
+
+
